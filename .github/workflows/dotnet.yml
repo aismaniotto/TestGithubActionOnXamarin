@@ -20,4 +20,4 @@ jobs:
           xcode-version: "latest" # set the latest available Xcode 11
       - uses: actions/checkout@v2
       - name: Test
-        run: dotnet test
+        run: dotnet test TestGithubActionOnXamarin.UnitTest
