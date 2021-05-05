@@ -8,6 +8,7 @@ namespace TestGithubActionOnXamarin.UnitTest
         [SetUp]
         public void Setup()
         {
+            Xamarin.Forms.Mocks.MockForms.Init();
             Application.Current = new App();
         }
 
