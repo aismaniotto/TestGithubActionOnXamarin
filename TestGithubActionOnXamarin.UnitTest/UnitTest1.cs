@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Xamarin.Forms;
 
 namespace TestGithubActionOnXamarin.UnitTest
 {
@@ -7,6 +8,7 @@ namespace TestGithubActionOnXamarin.UnitTest
         [SetUp]
         public void Setup()
         {
+            Application.Current = new App();
         }
 
         [Test]
