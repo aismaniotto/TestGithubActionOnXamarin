@@ -1,6 +1,8 @@
 name: CI-CD
 
 on:
+  create:
+    branches: [hotfix/*, release/*]
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
@@ -34,7 +36,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - name: Get branch name (pull request)
       shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF} | tr / -)" >> $GITHUB_ENV
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
     - uses: actions/upload-artifact@v2
       with:
         name: Android Apk ${{ env.BRANCH_NAME }}
