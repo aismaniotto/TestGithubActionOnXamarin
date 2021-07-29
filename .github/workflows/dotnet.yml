@@ -34,6 +34,6 @@ jobs:
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{ github.head_ref }}
+        name: Android Apk $(echo ${{ github.head_ref }} | tr / -)"
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
 
