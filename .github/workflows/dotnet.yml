@@ -35,5 +35,5 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: Android App
-        path: TestGithubActionOnXamarin.Android/bin/Debug/com.tfp.blank-Signed.apk
+        path: TestGithubActionOnXamarin.Android/debug.apk
 
