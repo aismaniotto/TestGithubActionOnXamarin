@@ -1,9 +1,14 @@
 name: CI-CD
 
 on:
+  create:
+    branches: [hotfix/*, release/*]
   pull_request:
-    branches: [develop, hotfix/*, release*]
+    branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
+env:
+  SOLUTION_NAME: TestGithubActionOnXamarin
+  ANDROID_PROJECT_NAME: TestGithubActionOnXamarin.Android
 
 jobs:
   test:
@@ -21,3 +26,19 @@ jobs:
       - uses: actions/checkout@v2
       - name: Test
         run: dotnet test TestGithubActionOnXamarin.UnitTest
+  Android:
+    runs-on: macos-latest    
+    steps:
+    - uses: actions/checkout@v1      
+    - name: Android
+      run: |
+        nuget restore
+        msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
+    - name: Get branch name (pull request)
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Android Apk ${{ env.BRANCH_NAME }}
+        path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
+
