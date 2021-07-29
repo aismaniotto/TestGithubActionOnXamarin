@@ -11,7 +11,7 @@ env:
 jobs:
   test:
     name: Setup Xamarin and Mono versions
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: setup-xamarin
         uses: maxim-lobanov/setup-xamarin@v1
