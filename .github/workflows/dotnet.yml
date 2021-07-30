@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Test
         run: dotnet test TestGithubActionOnXamarin.UnitTest
-  apk:
+  Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
     steps:
@@ -47,4 +47,26 @@ jobs:
       with:
         name: Android Apk ${{ env.BRANCH_NAME }}
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
+  iOS:
+    name: Generate ipa in debug profile
+    runs-on: macos-latest    
+    steps:
+    - uses: actions/checkout@v1      
+    - name: Apk
+      run: |
+        nuget restore
+        msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
+    - name: Get branch name (merge)
+      if: github.event_name != 'pull_request'
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+    - name: Get branch name (pull request)
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+    - uses: actions/upload-artifact@v2
+      with:
+        name: iOS Ipa ${{ env.BRANCH_NAME }}
+        path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
+  
 
