@@ -51,8 +51,21 @@ jobs:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
     steps:
-    - uses: actions/checkout@v1      
-    - name: Apk
+    - uses: actions/checkout@v1
+    - name: Install the Apple provisioning profile
+      env:
+        BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+      run: |
+        # create variables
+        PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+
+        # import provisioning profile from secrets
+        echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode --output $PP_PATH
+
+        # apply provisioning profile
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+    - name: Ipa
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
