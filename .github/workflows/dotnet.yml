@@ -47,10 +47,6 @@ jobs:
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
-    - name: echo the variables
-      run: |
-        echo "BRANCH_NAME=${BRANCH_NAME}"
-        echo "env.BRANCH_NAME=${env.BRANCH_NAME}"
     - uses: actions/upload-artifact@v2
       with:
         name: Android Apk ${{ env.BRANCH_NAME }}
@@ -93,10 +89,6 @@ jobs:
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
-    - name: echo the variables
-      run: |
-        echo "env.BRANCH_NAME=${env.BRANCH_NAME}"
-        echo "BRANCH_NAME=${BRANCH_NAME}"
     - uses: actions/upload-artifact@v2
       with:
         name: iOS Ipa ${{ env.BRANCH_NAME }}
