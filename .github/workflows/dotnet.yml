@@ -30,11 +30,13 @@ jobs:
     - name: Get branch name (merge)
       if: github.event_name != 'pull_request'
       shell: bash
-      run: echo "env.BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+      #run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | tr / -)"
     - name: Get branch name (pull request)
       if: github.event_name == 'pull_request'
       shell: bash
-      run: echo "env.BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+      #run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF} | tr / -)"
   Android:
     name: Generate apk in debug profile
     needs: BranchName
