@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
-env:
-  SOLUTION_NAME: TestGithubActionOnXamarin
-  ANDROID_PROJECT_NAME: TestGithubActionOnXamarin.Android
-
 jobs:
   test:
     name: Run tests
@@ -30,7 +26,7 @@ jobs:
     name: Output branch name
     runs-on: macos-latest
     outputs:
-      branch_name: $BRANCH_NAME
+      branch_name: TEST_BRANCH_NAME
     steps:
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
