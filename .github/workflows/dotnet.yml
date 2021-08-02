@@ -42,6 +42,8 @@ jobs:
     needs: BranchName
     steps:
     - uses: actions/checkout@v1      
+    - name: echo branch name
+      run: echo ${{needs.branch_name.outputs.branch_name}} 
     - name: Apk
       run: |
         nuget restore
