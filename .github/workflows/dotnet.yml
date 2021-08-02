@@ -8,6 +8,7 @@ on:
     types: [opened, reopened, edited, synchronize]
 env:
   BRANCH_NAME: test
+  BRANCH_TEST: not_reandom
 jobs:
   test:
     name: Run tests
@@ -43,9 +44,8 @@ jobs:
     - name: echo the variables
       run: |
           echo "BRANCH_NAME=${BRANCH_NAME}"
-          echo "env.BRANCH_NAME=${env.BRANCH_NAME}"
-          echo "env.BRANCH_TEST=${env.BRANCH_TEST}"
           echo "BRANCH_TEST=${BRANCH_TEST}"
+          echo "env.BRANCH_TEST=${env.BRANCH_TEST}"
   Android:
     name: Generate apk in debug profile
     needs: BranchName
