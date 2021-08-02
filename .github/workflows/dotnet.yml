@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
-env:
-  BRANCH_NAME: test
 jobs:
   test:
     name: Run tests
