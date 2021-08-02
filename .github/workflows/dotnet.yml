@@ -48,18 +48,17 @@ jobs:
     runs-on: macos-latest    
     steps:
     - uses: actions/checkout@v1      
-    - name: Apk
-      run: |
-        nuget restore
-        msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - name: echos
       run: |
         echo ${{ needs }}
         echo ${{ needs.BranchName }}
-        echo ${{ needs.BranchName.steps }}
-        echo ${{ needs.BranchName.steps.branch-name }}
-        echo ${{ needs.BranchName.steps.branch-name.outputs }}
-        echo ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}        
+        echo ${{ needs.BranchName.branch-name }}
+        echo ${{ needs.BranchName.branch-name.outputs }}
+        echo ${{ needs.BranchName.branch-name.outputs.branch-name }}
+    - name: Apk
+      run: |
+        nuget restore
+        msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug       
     - uses: actions/upload-artifact@v2
       with:
         name: Android Apk ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
@@ -70,6 +69,13 @@ jobs:
     runs-on: macos-latest    
     steps:
     - uses: actions/checkout@v1
+    - name: echos
+      run: |
+        echo ${{ needs }}
+        echo ${{ needs.BranchName }}
+        echo ${{ needs.BranchName.branch-name }}
+        echo ${{ needs.BranchName.branch-name.outputs }}
+        echo ${{ needs.BranchName.branch-name.outputs.branch-name }}
     - name: Install the Apple certificate and provisioning profile
       env:
         BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -102,14 +108,6 @@ jobs:
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
-    - name: echos
-      run: |
-        echo ${{ needs }}
-        echo ${{ needs.BranchName }}
-        echo ${{ needs.BranchName.steps }}
-        echo ${{ needs.BranchName.steps.branch-name }}
-        echo ${{ needs.BranchName.steps.branch-name.outputs }}
-        echo ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
     - uses: actions/upload-artifact@v2
       with:
         name: iOS Ipa ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
