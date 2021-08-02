@@ -32,13 +32,11 @@ jobs:
     - name: Get branch name (merge)
       if: github.event_name != 'pull_request'
       shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+      run: echo "env.BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
     - name: Get branch name (pull request)
       if: github.event_name == 'pull_request'
       shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
-    - name: echo the variables
-      run: echo "BRANCH_NAME=${BRANCH_NAME}"
+      run: echo "env.BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
   Android:
     name: Generate apk in debug profile
     needs: BranchName
@@ -97,8 +95,8 @@ jobs:
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
     - name: echo the variables
       run: |
-        echo "BRANCH_NAME=${BRANCH_NAME}"
         echo "env.BRANCH_NAME=${env.BRANCH_NAME}"
+        echo "BRANCH_NAME=${BRANCH_NAME}"
     - uses: actions/upload-artifact@v2
       with:
         name: iOS Ipa ${{ env.BRANCH_NAME }}
