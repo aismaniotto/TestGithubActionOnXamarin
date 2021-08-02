@@ -30,11 +30,18 @@ jobs:
     - name: Get branch name (merge)
       if: github.event_name != 'pull_request'
       shell: bash
-      run: echo "env.BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+      #run: echo "env.BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+      #echo ${GITHUB_REF#refs/heads/} | tr / -
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
     - name: Get branch name (pull request)
       if: github.event_name == 'pull_request'
       shell: bash
-      run: echo "env.BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+      #run: echo "env.BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+      #echo ${GITHUB_HEAD_REF} | tr / -)
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+    - name: Output branch name
+      id: branch-name
+      run: echo "::set-output name=branch-name::$BRANCH_NAME"
   Android:
     name: Generate apk in debug profile
     needs: BranchName
@@ -47,7 +54,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{ env.BRANCH_NAME }}
+        name: Android Apk ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
@@ -89,7 +96,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
     - uses: actions/upload-artifact@v2
       with:
-        name: iOS Ipa ${{ env.BRANCH_NAME }}
+        name: iOS Ipa ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
         path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
   
 
