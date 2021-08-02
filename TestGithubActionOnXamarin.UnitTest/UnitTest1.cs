@@ -21,7 +21,7 @@ namespace TestGithubActionOnXamarin.UnitTest
         [Test]
         public void NewTest()
         {
-             Assert.IsTrue(true);
+             Assert.IsTrue(false);
 
         }
     }
