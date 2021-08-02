@@ -42,15 +42,13 @@ jobs:
     needs: BranchName
     steps:
     - uses: actions/checkout@v1      
-    - name: echo branch name
-      run: echo ${{needs.branch_name.outputs.branch_name}} 
     - name: Apk
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{needs.branch_name.outputs.branch_name}} 
+        name: Android Apk ${{needs.BranchName.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
@@ -88,7 +86,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
     - uses: actions/upload-artifact@v2
       with:
-        name: iOS Ipa ${{needs.branch_name.outputs.branch_name}} 
+        name: iOS Ipa ${{needs.BranchName.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
   
 
