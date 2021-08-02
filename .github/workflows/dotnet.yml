@@ -52,6 +52,14 @@ jobs:
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
+    - name: echos
+      run: |
+        echo ${{ needs }}
+        echo ${{ needs.BranchName }}
+        echo ${{ needs.BranchName.steps }}
+        echo ${{ needs.BranchName.steps.branch-name }}
+        echo ${{ needs.BranchName.steps.branch-name.outputs }}
+        echo ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}        
     - uses: actions/upload-artifact@v2
       with:
         name: Android Apk ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
@@ -94,6 +102,14 @@ jobs:
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
+    - name: echos
+      run: |
+        echo ${{ needs }}
+        echo ${{ needs.BranchName }}
+        echo ${{ needs.BranchName.steps }}
+        echo ${{ needs.BranchName.steps.branch-name }}
+        echo ${{ needs.BranchName.steps.branch-name.outputs }}
+        echo ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
     - uses: actions/upload-artifact@v2
       with:
         name: iOS Ipa ${{ needs.BranchName.steps.branch-name.outputs.branch-name }}
