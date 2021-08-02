@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
-env:
-  BRANCH_NAME: ''
 jobs:
   test:
     name: Run tests
@@ -39,6 +37,7 @@ jobs:
       run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
   Android:
     name: Generate apk in debug profile
+    needs: BranchName
     runs-on: macos-latest    
     steps:
     - uses: actions/checkout@v1      
@@ -52,6 +51,7 @@ jobs:
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
+    needs: BranchName
     runs-on: macos-latest    
     steps:
     - uses: actions/checkout@v1
