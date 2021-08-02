@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
+env:
+  BRANCH_NAME: test
 jobs:
   test:
     name: Run tests
@@ -35,9 +37,15 @@ jobs:
       if: github.event_name == 'pull_request'
       shell: bash
       run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+    - name: test try global
+      shell: bash
+      run: echo "env.BRANCH_TEST=RANDOM_TEST" >> $GITHUB_ENV
     - name: echo the variables
       run: |
           echo "BRANCH_NAME=${BRANCH_NAME}"
+          echo "env.BRANCH_NAME=${env.BRANCH_NAME}"
+          echo "env.BRANCH_TEST=${env.BRANCH_TEST}"
+          echo "BRANCH_TEST=${BRANCH_TEST}"
   Android:
     name: Generate apk in debug profile
     needs: BranchName
