@@ -36,15 +36,13 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.6
-      - run: echo Triggered by = ${{ github.event_name }}
+      - run: echo Event = ${{ github.event_name }}
+      - run: echo Type = ${{ github.event.action }}
       - run: echo Branch name = ${{ env.BRANCH_NAME }}
       - run: echo Actor = ${{ github.actor }}
       - run: echo Labels = [${{ steps.pr-labels.outputs.labels }}]
       - run: echo inputs - build_apk = ${{ github.event.inputs.build_apk }}
       - run: echo inputs - build_ipa = ${{ github.event.inputs.build_ipa }}
-      - run: echo json0 = ${{ toJSON(job) }}
-      - run: echo json2 = ${{ toJSON(github) }}
-      - run: echo json1 = ${{ toJSON(github.event) }}
   Test:
     name: Run tests
     runs-on: macos-latest
