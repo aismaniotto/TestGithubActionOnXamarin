@@ -29,6 +29,8 @@ jobs:
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
       labels: ${{steps.pr-labels.outputs.labels}}
+      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name != 'pull_request' }} 
+      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name != 'pull_request' }} 
     steps:
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
@@ -45,7 +47,7 @@ jobs:
     name: Generate apk in debug profile
     runs-on: macos-latest    
     needs: BranchInfos
-    if: ${{ contains(needs.BranchInfos.outputs.labels, 'ci-apk') }}
+    if: ${{ needs.BranchInfos.outputs.build_apk }}
     steps:
     - uses: actions/checkout@v1      
     - name: Apk
@@ -60,7 +62,7 @@ jobs:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
     needs: BranchInfos
-    if: ${{ contains(needs.BranchInfos.outputs.labels, 'ci-ipa') }}
+    if: ${{ needs.BranchInfos.outputs.build_ipa }}
     steps:
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
