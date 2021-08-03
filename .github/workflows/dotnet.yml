@@ -41,8 +41,6 @@ jobs:
       build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' || github.event.inputs.build_apk == 'YES' }} 
       build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name == 'create' || github.event.inputs.build_ipa == 'YES'}} 
     steps:
-      - run: echo github.event_name
-      - run: echo ${{ github.event_name }}
       - name: Get branch name (create branch)
         if: github.event_name != 'pull_request'
         shell: bash
