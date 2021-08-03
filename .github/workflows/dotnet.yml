@@ -42,10 +42,14 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.6
-      - run: echo "BUILD_APK=TRUE" >> $GITHUB_ENV
+      - name: echo labels
+        run: echo ${{steps.pr-labels.outputs.labels}}
+      - name: Should build apk
         if: contains(steps.pr-labels.outputs.labels, 'ci:apk')
-      - run: echo "BUILD_IPA=TRUE" >> $GITHUB_ENV
+        run: echo "BUILD_APK=1" >> $GITHUB_ENV
+      - name: Should build ipa
         if: contains(steps.pr-labels.outputs.labels, 'ci:ipa')
+        run: echo "BUILD_IPA=1" >> $GITHUB_ENV
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
