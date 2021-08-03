@@ -1,8 +1,6 @@
 name: CI-CD
 
 on:
-  create:
-    branches: [hotfix/*, release/*]
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, labeled, synchronize]
@@ -16,20 +14,24 @@ on:
         description: 'Should build .ipa file? YES/NO'
         required: true
         default: 'NO'
+      rev:
+        description: 'Rev (Ex.: Rev0, Rev1, Rev5...)'
+        required: false
+        default: 'Rev0'
 jobs:
   Init:
     name: Output branch infos 
     runs-on: macos-latest
     outputs:
-      branch_name: ${{ env.BRANCH_NAME }}
-      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' || github.event.inputs.build_apk == 'YES' }} 
-      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name == 'create' || github.event.inputs.build_ipa == 'YES'}} 
+      branch_name: ${{ env.BRANCH_NAME github.event.inputs.rev }}
+      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event.inputs.build_apk == 'YES' }} 
+      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event.inputs.build_ipa == 'YES'}} 
     steps:
-      - name: Get branch name (create branch)
+      - name: Get branch name (not PR)
         if: github.event_name != 'pull_request'
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-      - name: Get branch name (pull request)
+      - name: Get branch name (PR)
         if: github.event_name == 'pull_request'
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
@@ -39,6 +41,7 @@ jobs:
       - run: echo Event = ${{ github.event_name }}
       - run: echo Type = ${{ github.event.action }}
       - run: echo Branch name = ${{ env.BRANCH_NAME }}
+      - run: echo Revision = ${{ github.event.inputs.rev }}
       - run: echo Actor = ${{ github.actor }}
       - run: echo Labels = [${{ steps.pr-labels.outputs.labels }}]
       - run: echo inputs - build_apk = ${{ github.event.inputs.build_apk }}
