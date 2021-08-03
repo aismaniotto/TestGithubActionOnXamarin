@@ -14,12 +14,16 @@ on:
         description: 'Should build .ipa file? YES/NO'
         required: true
         default: 'NO'
+      rev:
+        description: 'Rev (Ex.: Rev0, Rev1, Rev5...)'
+        required: false
+        default: 'Rev0'
 jobs:
   Init:
     name: Output branch infos 
     runs-on: macos-latest
     outputs:
-      branch_name: ${{ env.BRANCH_NAME }}
+      branch_name: ${{ env.BRANCH_NAME github.event.inputs.rev }}
       build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event.inputs.build_apk == 'YES' }} 
       build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event.inputs.build_ipa == 'YES'}} 
     steps:
@@ -37,6 +41,7 @@ jobs:
       - run: echo Event = ${{ github.event_name }}
       - run: echo Type = ${{ github.event.action }}
       - run: echo Branch name = ${{ env.BRANCH_NAME }}
+      - run: echo Revision = ${{ github.event.inputs.rev }}
       - run: echo Actor = ${{ github.actor }}
       - run: echo Labels = [${{ steps.pr-labels.outputs.labels }}]
       - run: echo inputs - build_apk = ${{ github.event.inputs.build_apk }}
