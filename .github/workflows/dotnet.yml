@@ -6,50 +6,55 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
-env:
-  SOLUTION_NAME: TestGithubActionOnXamarin
-  ANDROID_PROJECT_NAME: TestGithubActionOnXamarin.Android
-
 jobs:
-  test:
+  Test:
     name: Run tests
     runs-on: macos-latest
     steps:
-      - name: setup-xamarin
-        uses: maxim-lobanov/setup-xamarin@v1
-        with:
-          mono-version: "latest" # specify version in '<major>.<minor>' format
-          xamarin-ios-version: "latest" # specify version in '<major>' format
-          xamarin-mac-version: latest # specify 'latest' keyword to pick up the latest available version
-          xamarin-android-version: "latest" # specify full version; it is not recomended option because your pipeline can be broken suddenly in future
-          xcode-version: "latest" # set the latest available Xcode 11
       - uses: actions/checkout@v2
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Install dependencies
+        run: nuget restore
+      - name: Build
+        run: dotnet build TestGithubActionOnXamarin.UnitTest
       - name: Test
         run: dotnet test TestGithubActionOnXamarin.UnitTest
+  BranchName:
+    name: Output branch name
+    runs-on: macos-latest
+    needs: Test
+    outputs:
+      branch_name: ${{ env.BRANCH_NAME }}
+    steps:
+      - name: Get branch name (merge)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+      - name: Get branch name (pull request)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
+    needs: BranchName
     steps:
     - uses: actions/checkout@v1      
     - name: Apk
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
-    - name: Get branch name (merge)
-      if: github.event_name != 'pull_request'
-      shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-    - name: Get branch name (pull request)
-      if: github.event_name == 'pull_request'
-      shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{ env.BRANCH_NAME }}
+        name: Android Apk ${{needs.BranchName.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
+    needs: BranchName
     steps:
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
@@ -63,20 +68,16 @@ jobs:
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
         PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
         # import certificate and provisioning profile from secrets
         echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
         echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode --output $PP_PATH
-
         # create temporary keychain
         security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
-
         # import certificate to keychain
         security import $CERTIFICATE_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
         security list-keychain -d user -s $KEYCHAIN_PATH
-
         # apply provisioning profile
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
@@ -84,17 +85,9 @@ jobs:
       run: |
         nuget restore
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
-    - name: Get branch name (merge)
-      if: github.event_name != 'pull_request'
-      shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-    - name: Get branch name (pull request)
-      if: github.event_name == 'pull_request'
-      shell: bash
-      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
     - uses: actions/upload-artifact@v2
       with:
-        name: iOS Ipa ${{ env.BRANCH_NAME }}
+        name: iOS Ipa ${{needs.BranchName.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
   
 
