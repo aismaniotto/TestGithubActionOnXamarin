@@ -6,6 +6,16 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
+  workflow_dispatch:
+    inputs:
+      buil_apk:
+        description: 'Should build .apk file? YES/NO'
+        required: true
+        default: 'YES'
+      buil_iOS:
+        description: 'Should build .ipa file? YES/NO'
+        required: true
+        default: 'NO'
 jobs:
   Test:
     name: Run tests
@@ -22,14 +32,18 @@ jobs:
         run: dotnet build TestGithubActionOnXamarin.UnitTest
       - name: Test
         run: dotnet test TestGithubActionOnXamarin.UnitTest
-  BranchName:
+  BranchInfos:
     name: Output branch name
     runs-on: macos-latest
     needs: Test
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
+      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' }} 
+      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name == 'create' }} 
     steps:
-      - name: Get branch name (merge)
+      - run: echo github.event_name
+      - run: echo ${{ github.event_name }}
+      - name: Get branch name (create branch)
         if: github.event_name != 'pull_request'
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
@@ -37,10 +51,14 @@ jobs:
         if: github.event_name == 'pull_request'
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+      - name: Get PR labels
+        id: pr-labels
+        uses: joerick/pr-labels-action@v1.0.6
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
-    needs: BranchName
+    needs: BranchInfos
+    if: ${{ needs.BranchInfos.outputs.build_apk == 'true' }} # output is always string
     steps:
     - uses: actions/checkout@v1      
     - name: Apk
@@ -49,13 +67,16 @@ jobs:
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{needs.BranchName.outputs.branch_name}} 
+        name: Android Apk ${{needs.BranchInfos.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
-    needs: BranchName
+    needs: BranchInfos
+    if: ${{ needs.BranchInfos.outputs.build_ipa == 'true' }} # output is always string
     steps:
+    - run: echo shouldBeFalse:${{ needs.BranchInfos.outputs.build_ipa }}
+    - run: echo shouldBeTrue:${{ needs.BranchInfos.outputs.build_ipa == 'false' }}
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
       env:
@@ -87,7 +108,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
     - uses: actions/upload-artifact@v2
       with:
-        name: iOS Ipa ${{needs.BranchName.outputs.branch_name}} 
+        name: iOS Ipa ${{needs.BranchInfos.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
   
 
