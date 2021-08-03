@@ -28,8 +28,7 @@ jobs:
     needs: Test
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
-      build_apk: ${{ env.BUILD_APK }}
-      build_ipa: ${{ env.BUILD_IPA }}
+      labels: ${{steps.pr-labels.outputs.labels}}
     steps:
       - name: Get branch name (merge)
         if: github.event_name != 'pull_request'
@@ -42,19 +41,20 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.6
-      - name: echo labels
-        run: echo ${{steps.pr-labels.outputs.labels}}
-      - name: Should build apk
-        if: contains(steps.pr-labels.outputs.labels, 'ci:apk')
-        run: echo "BUILD_APK=${{true}}" >> $GITHUB_ENV
-      - name: Should build ipa
-        if: contains(steps.pr-labels.outputs.labels, 'ci:ipa')
-        run: echo "BUILD_IPA=${{true}}" >> $GITHUB_ENV
+#       - name: echo labels
+#         run: echo ${{steps.pr-labels.outputs.labels}}
+#       - name: Should build apk
+#         if: contains(steps.pr-labels.outputs.labels, 'ci:apk')
+#         run: echo "BUILD_APK=${{true}}" >> $GITHUB_ENV
+#       - name: Should build ipa
+#         if: contains(steps.pr-labels.outputs.labels, 'ci:ipa')
+#         run: echo "BUILD_IPA=${{true}}" >> $GITHUB_ENV
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
     needs: BranchName
-    if: ${{needs.BranchName.outputs.build_apk}} 
+#     if: ${{ contains }} ${{needs.BranchName.outputs.labels}} 
+    if: contains(needs.BranchName.outputs.labels, 'ci:apk')
     steps:
     - uses: actions/checkout@v1      
     - name: Apk
@@ -69,7 +69,7 @@ jobs:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
     needs: BranchName
-    if: ${{needs.BranchName.outputs.build_ipa}} 
+    if: contains(needs.BranchName.outputs.labels, 'ci:ipa')
     steps:
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
