@@ -6,6 +6,16 @@ on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, edited, synchronize]
+  workflow_dispatch:
+    inputs:
+      buil_apk:
+        description: 'Should build .apk file? YES/NO'
+        required: true
+        default: 'YES'
+      buil_iOS:
+        description: 'Should build .ipa file? YES/NO'
+        required: true
+        default: 'NO'
 jobs:
   Test:
     name: Run tests
@@ -28,9 +38,11 @@ jobs:
     needs: Test
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
-      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name != 'pull_request' }} 
-      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name != 'pull_request' }} 
+      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' }} 
+      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name == 'create' }} 
     steps:
+      - run: echo github.event_name
+      - run: echo ${{ github.event_name }}
       - name: Get branch name (create branch)
         if: github.event_name != 'pull_request'
         shell: bash
