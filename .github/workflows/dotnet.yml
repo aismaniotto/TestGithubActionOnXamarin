@@ -59,6 +59,7 @@ jobs:
     steps:
     - run: echo ${{needs.BranchName.outputs.labels}}
     - run: echo ${{ contains(needs.BranchName.outputs.labels, 'ci:apk') }}
+    - run: echo ${{ contains(needs.BranchName.outputs.labels, ' ci:apk ') }}
     - run: echo ${{ contains(needs.BranchName.outputs.labels, 'ci:apk') || needs.BranchName.outputs.labels == 'ci:apk' }}
     - uses: actions/checkout@v1      
     - name: Apk
