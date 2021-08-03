@@ -38,8 +38,8 @@ jobs:
     needs: Test
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
-      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name != 'pull_request' }} 
-      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name != 'pull_request' }} 
+      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' }} 
+      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name == 'create' }} 
     steps:
       - run: echo github.event_name
       - run: echo ${{ github.event_name }}
