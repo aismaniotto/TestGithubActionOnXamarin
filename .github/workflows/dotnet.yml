@@ -17,23 +17,8 @@ on:
         required: true
         default: 'NO'
 jobs:
-  Test:
-    name: Run tests
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
-      - name: Install dependencies
-        run: nuget restore
-      - name: Build
-        run: dotnet build TestGithubActionOnXamarin.UnitTest
-      - name: Test
-        run: dotnet test TestGithubActionOnXamarin.UnitTest
-  BranchInfos:
-    name: Output branch name
+  Init:
+    name: Output branch infos 
     runs-on: macos-latest
     needs: Test
     outputs:
@@ -52,11 +37,35 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.6
+      - run: echo Triggered by = ${{ github.event_name }}
+      - run: echo Branch name = ${{ env.BRANCH_NAME }}
+      - run: echo Actor = ${{ github.actor }}
+      - run: echo Labels [${{ steps.pr-labels.outputs.labels }}]
+      - run: echo inputs - build_apk = ${{ github.event.inputs.build_apk }}
+      - run: echo inputs - build_ipa = ${{ github.event.inputs.build_ipa }}
+      - run: echo json1 = ${{ toJSON(github.event) }}
+      - run: echo json2 = ${{ toJSON(github) }}
+  Test:
+    name: Run tests
+    runs-on: macos-latest
+    needs: Init
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Install dependencies
+        run: nuget restore
+      - name: Build
+        run: dotnet build TestGithubActionOnXamarin.UnitTest
+      - name: Test
+        run: dotnet test TestGithubActionOnXamarin.UnitTest
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
-    needs: BranchInfos
-    if: ${{ needs.BranchInfos.outputs.build_apk == 'true' }} # output is always string
+    needs: [Test, Init]
+    if: ${{ needs.Init.outputs.build_apk == 'true' }} # output is always string
     steps:
     - uses: actions/checkout@v1      
     - name: Apk
@@ -65,13 +74,13 @@ jobs:
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{needs.BranchInfos.outputs.branch_name}} 
+        name: Android Apk ${{needs.Init.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
-    needs: BranchInfos
-    if: ${{ needs.BranchInfos.outputs.build_ipa == 'true' }} # output is always string
+    needs: [Test, Init]
+    if: ${{ needs.Init.outputs.build_ipa == 'true' }} # output is always string
     steps:
     - run: echo shouldBeFalse:${{ needs.BranchInfos.outputs.build_ipa }}
     - run: echo shouldBeTrue:${{ needs.BranchInfos.outputs.build_ipa == 'false' }}
@@ -106,7 +115,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
     - uses: actions/upload-artifact@v2
       with:
-        name: iOS Ipa ${{needs.BranchInfos.outputs.branch_name}} 
+        name: iOS Ipa ${{needs.Init.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
   
 
