@@ -20,7 +20,6 @@ jobs:
   Init:
     name: Output branch infos 
     runs-on: macos-latest
-    needs: Test
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
       build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' || github.event.inputs.build_apk == 'YES' }} 
