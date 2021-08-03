@@ -49,6 +49,7 @@ jobs:
 #       - name: Should build ipa
 #         if: contains(steps.pr-labels.outputs.labels, 'ci:ipa')
 #         run: echo "BUILD_IPA=${{true}}" >> $GITHUB_ENV
+
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
