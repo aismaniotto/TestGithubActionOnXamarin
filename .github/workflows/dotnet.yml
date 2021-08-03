@@ -22,7 +22,7 @@ jobs:
         run: dotnet build TestGithubActionOnXamarin.UnitTest
       - name: Test
         run: dotnet test TestGithubActionOnXamarin.UnitTest
-  BranchName:
+  BranchInfos:
     name: Output branch name
     runs-on: macos-latest
     needs: Test
@@ -41,26 +41,12 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.6
-#       - name: echo labels
-#         run: echo ${{steps.pr-labels.outputs.labels}}
-#       - name: Should build apk
-#         if: contains(steps.pr-labels.outputs.labels, 'ci:apk')
-#         run: echo "BUILD_APK=${{true}}" >> $GITHUB_ENV
-#       - name: Should build ipa
-#         if: contains(steps.pr-labels.outputs.labels, 'ci:ipa')
-#         run: echo "BUILD_IPA=${{true}}" >> $GITHUB_ENV
-
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
-    needs: BranchName
-#     if: ${{ contains }} ${{needs.BranchName.outputs.labels}} 
-#     if: contains(needs.BranchName.outputs.labels, 'ci:apk')
+    needs: BranchInfos
+    if: ${{ contains(needs.BranchInfos.outputs.labels, 'ci-apk') }}
     steps:
-    - run: echo ${{needs.BranchName.outputs.labels}}
-    - run: echo ${{ contains(needs.BranchName.outputs.labels, 'ci-apk') }}
-    - run: echo ${{ contains(needs.BranchName.outputs.labels, ' ci-apk ') }}
-    - run: echo ${{ contains(needs.BranchName.outputs.labels, 'ci-apk') || needs.BranchName.outputs.labels == 'ci-apk' }}
     - uses: actions/checkout@v1      
     - name: Apk
       run: |
@@ -68,13 +54,13 @@ jobs:
         msbuild TestGithubActionOnXamarin.Android/TestGithubActionOnXamarin.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
     - uses: actions/upload-artifact@v2
       with:
-        name: Android Apk ${{needs.BranchName.outputs.branch_name}} 
+        name: Android Apk ${{needs.BranchInfos.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.Android/bin/Debug/br.com.aismaniotto.testgithubactiononxamarin-Signed.apk
   iOS:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
-    needs: BranchName
-    if: contains(needs.BranchName.outputs.labels, 'ci:ipa')
+    needs: BranchInfos
+    if: ${{ contains(needs.BranchInfos.outputs.labels, 'ci-ipa') }}
     steps:
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
@@ -107,7 +93,7 @@ jobs:
         msbuild TestGithubActionOnXamarin.iOS/TestGithubActionOnXamarin.iOS.csproj /verbosity:normal /t:Rebuild /p:Platform=iPhone /p:Configuration=Debug
     - uses: actions/upload-artifact@v2
       with:
-        name: iOS Ipa ${{needs.BranchName.outputs.branch_name}} 
+        name: iOS Ipa ${{needs.BranchInfos.outputs.branch_name}} 
         path: TestGithubActionOnXamarin.iOS/bin/iPhone/Debug/TestGithubActionOnXamarin.iOS.ipa
   
 
