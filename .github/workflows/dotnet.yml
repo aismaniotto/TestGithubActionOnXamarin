@@ -23,7 +23,7 @@ jobs:
     name: Output branch infos 
     runs-on: macos-latest
     outputs:
-      branch_name: ${{ env.BRANCH_NAME github.event.inputs.rev }}
+      branch_name: ${{ env.BRANCH_NAME }} ${{ github.event.inputs.rev }}
       build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event.inputs.build_apk == 'YES' }} 
       build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event.inputs.build_ipa == 'YES'}} 
     steps:
