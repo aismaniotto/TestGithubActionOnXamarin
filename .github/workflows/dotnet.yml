@@ -1,8 +1,6 @@
 name: CI-CD
 
 on:
-  create:
-    branches: [hotfix/*, release/*]
   pull_request:
     branches: [develop, hotfix/*, release/*]
     types: [opened, reopened, labeled, synchronize]
@@ -22,14 +20,14 @@ jobs:
     runs-on: macos-latest
     outputs:
       branch_name: ${{ env.BRANCH_NAME }}
-      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name == 'create' || github.event.inputs.build_apk == 'YES' }} 
-      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name == 'create' || github.event.inputs.build_ipa == 'YES'}} 
+      build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event.inputs.build_apk == 'YES' }} 
+      build_ipa: ${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event.inputs.build_ipa == 'YES'}} 
     steps:
-      - name: Get branch name (create branch)
+      - name: Get branch name (not PR)
         if: github.event_name != 'pull_request'
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-      - name: Get branch name (pull request)
+      - name: Get branch name (PR)
         if: github.event_name == 'pull_request'
         shell: bash
         run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
