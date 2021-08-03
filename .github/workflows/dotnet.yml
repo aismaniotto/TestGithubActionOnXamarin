@@ -74,7 +74,7 @@ jobs:
     #if: false
     steps:
     - run: echo shouldBeFalse:${{ needs.BranchInfos.outputs.build_ipa }}
-    - run: echo shouldBeTrue:${{ needs.BranchInfos.outputs.build_ipa == false }}
+    - run: echo shouldBeTrue:${{ needs.BranchInfos.outputs.build_ipa == 'false' }}
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
       env:
