@@ -54,8 +54,9 @@ jobs:
     runs-on: macos-latest    
     needs: BranchName
 #     if: ${{ contains }} ${{needs.BranchName.outputs.labels}} 
-    if: contains(needs.BranchName.outputs.labels, 'ci:apk')
+#     if: contains(needs.BranchName.outputs.labels, 'ci:apk')
     steps:
+    - run: echo ${{needs.BranchName.outputs.labels}}
     - uses: actions/checkout@v1      
     - name: Apk
       run: |
