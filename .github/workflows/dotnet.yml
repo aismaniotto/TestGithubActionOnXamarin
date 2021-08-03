@@ -43,11 +43,19 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.6
+      - name: echos
+        run: |
+         echo 1:${{ github.event_name != 'pull_request' }}
+         echo 2:${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') }}
+         echo 3:${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') }}
+         echo 4:${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event_name != 'pull_request' }} 
+         echo 5:${{ contains(steps.pr-labels.outputs.labels, 'ci-ipa') || github.event_name != 'pull_request' }} 
   Android:
     name: Generate apk in debug profile
     runs-on: macos-latest    
     needs: BranchInfos
-    if: ${{ needs.BranchInfos.outputs.build_apk }}
+    #if: ${{ needs.BranchInfos.outputs.build_apk }}
+    if: false
     steps:
     - uses: actions/checkout@v1      
     - name: Apk
@@ -62,7 +70,8 @@ jobs:
     name: Generate ipa in debug profile
     runs-on: macos-latest    
     needs: BranchInfos
-    if: ${{ needs.BranchInfos.outputs.build_ipa }}
+    #if: ${{ needs.BranchInfos.outputs.build_ipa }}
+    if: false
     steps:
     - uses: actions/checkout@v1
     - name: Install the Apple certificate and provisioning profile
