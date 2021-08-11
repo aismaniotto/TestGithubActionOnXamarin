@@ -21,7 +21,7 @@ on:
 jobs:
   Init:
     name: Output branch infos 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       branch_name: ${{ env.BRANCH_NAME }} ${{ github.event.inputs.rev }}
       build_apk: ${{ contains(steps.pr-labels.outputs.labels, 'ci-apk') || github.event.inputs.build_apk == 'YES' }} 
@@ -48,7 +48,7 @@ jobs:
       - run: echo inputs - build_ipa = ${{ github.event.inputs.build_ipa }}
   Test:
     name: Run tests
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs: Init
     steps:
       - uses: actions/checkout@v2
@@ -64,11 +64,13 @@ jobs:
         run: dotnet test TestGithubActionOnXamarin.UnitTest
   Android:
     name: Generate apk in debug profile
-    runs-on: macos-latest    
+    runs-on: windows-latest    
     needs: [Test, Init]
     if: ${{ needs.Init.outputs.build_apk == 'true' }} # output is always string
     steps:
-    - uses: actions/checkout@v1      
+    - uses: actions/checkout@v1    
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: Apk
       run: |
         nuget restore
