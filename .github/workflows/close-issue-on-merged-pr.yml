@@ -1,10 +1,10 @@
+
 name: Close issues related to a merged pull request based
 
 on:
   pull_request:
     types: [closed]
-    branches:
-      - [hotfix/*, release/*, develop, main]
+    branches: [hotfix/*, release/*, develop, main]
 
 jobs:
   closeIssueOnPrMergeTrigger:
