@@ -1,4 +1,5 @@
 name: Close issues related to a merged pull request based
+
 on:
   pull_request:
     branches: [develop, hotfix/*, release/*]
