@@ -1,16 +1,13 @@
-
 name: Close issues related to a merged pull request based
 
 on:
   pull_request:
     types: [closed]
-    branches: [hotfix/*, release/*, develop, main]
+    branches: [hotfix/*, release/*, develop]
 
 jobs:
   closeIssueOnPrMergeTrigger:
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Closes issues related to a merged pull request.
         uses: ldez/gha-mjolnir@v1.0.3
